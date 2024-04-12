@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Memory Game</title>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h2>Memory Game</h2>
+      <label for="participantName">Participant Name:</label>
+      <input type="text" id="participantName" />
+      <label for="gameSize">Select Game Size:</label>
+      <select id="gameSize" onchange="resetGame()">
+        <option value="4">4x4</option>
+        <option value="6">6x6</option>
+      </select>
+      <div class="game"></div>
+      <p>Games Won: <span id="gamesWon">0</span></p>
+      <button class="reset" onclick="resetGame()">Reset Game</button>
+      <button class="save" onclick="saveScore()">Save Score</button>
+    </div>
+    <script>
+      let cards = [];
+      let moves = 0;
+      let gamesWon = 0;
+      let openCards = [];
+
+      // Initialize emojis array
+      const emojis = [
+        "😃",
+        "🤖",
+        "🤣",
+        "🎃",
+        "🤩",
+        "🥶",
+        "🏀",
+        "🐣",
+        "🦄",
+        "🐶",
+        "🐱",
+        "🐼",
+        "🐢",
+        "🦊",
+        "🐙",
+        "🦕",
+        "🐯",
+        "🐰",
+        "🦁",
+        "🐸",
+        "🐳",
+        "🦉",
+        "🦁",
+        "🐧",
+      ];
+
+      function shuffleCards() {
+        return cards.sort(() => Math.random() - 0.5);
+      }
+
+      function resetGame() {
+        const gameSize = parseInt(document.getElementById("gameSize").value);
+        const numCards = gameSize * gameSize;
+        cards = [];
+
+        // Generate pairs of emojis
+        for (let i = 0; i < numCards / 2; i++) {
+          const emoji = emojis[i];
+          cards.push(emoji, emoji);
+        }
+
+        // Shuffle the cards
+        shuffleCards();
+
+        // Clear the game area
+        const gameContainer = document.querySelector(".game");
+        gameContainer.innerHTML = "";
+
+        // Remove previous game class
+        gameContainer.classList.remove("game4x4", "game6x6");
+
+        // Dynamically set the game class based on game size
+        const gameClass = gameSize === 4 ? "game4x4" : "game6x6";
+        gameContainer.classList.add(gameClass);
+
+        // Render the cards
+        renderCards(gameSize);
+      }
+
+      function saveScore() {
+        const participantName =
+          document.getElementById("participantName").value;
+        const score = gamesWon;
+
+        // Load existing data from JSON file
+        let jsonData = localStorage.getItem("memoryGameScores");
+        let data = jsonData ? JSON.parse(jsonData) : {};
+
+        // Update score for existing participant or add new entry
+        data[participantName] = score;
+
+        // Save updated data to JSON file
+        const blob = new Blob([JSON.stringify(data)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "memory_game_scores.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        alert("Score saved successfully!");
+      }
+
+      function checkWin() {
+        const matchedBoxes = document.querySelectorAll(".boxMatch");
+        if (matchedBoxes.length === cards.length) {
+          alert("You win!");
+          gamesWon++;
+          document.getElementById("gamesWon").textContent = gamesWon;
+          resetGame();
+        }
+      }
+
+      function renderCards(gameSize) {
+        // Clear the game area
+        const gameContainer = document.querySelector(".game");
+        gameContainer.innerHTML = "";
+
+        // Dynamically set the game class based on game size
+        const gameClass = gameSize === 4 ? "game4x4" : "game6x6";
+        gameContainer.classList.add(gameClass);
+
+        // Select random emojis for the game
+        const selectedEmojis = emojis.slice(0, (gameSize * gameSize) / 2);
+        cards = [...selectedEmojis, ...selectedEmojis];
+        shuffleCards();
+
+        for (var i = 0; i < cards.length; i++) {
+          let box = document.createElement("div");
+          box.className = "item";
+          box.innerHTML = cards[i];
+
+          // Randomly choose one of the flip animations
+          const flipAnimations = [
+            "flip-horizontal",
+            "flip-vertical",
+            "flip-diagonal",
+          ];
+          const randomAnimation =
+            flipAnimations[Math.floor(Math.random() * flipAnimations.length)];
+          box.classList.add(randomAnimation);
+
+          box.onclick = function () {
+            if (
+              !this.classList.contains("boxMatch") &&
+              !this.classList.contains("boxOpen") &&
+              openCards.length < 2
+            ) {
+              this.classList.add("boxOpen");
+              openCards.push(this);
+              moves++;
+              setTimeout(function () {
+                if (openCards.length === 2) {
+                  if (openCards[0].innerHTML === openCards[1].innerHTML) {
+                    openCards.forEach((box) => box.classList.add("boxMatch"));
+                    openCards = [];
+                    checkWin();
+                  } else {
+                    openCards.forEach((box) => box.classList.remove("boxOpen"));
+                    openCards = [];
+                  }
+                }
+              }, 500);
+            }
+          };
+
+          gameContainer.appendChild(box);
+        }
+      }
+
+      // Initial render
+      resetGame();
+    </script>
+  </body>
+</html>

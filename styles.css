@@ -1,0 +1,102 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: monospace;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #ffffff;
+}
+.container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 30px;
+  background: #2e6eec;
+  padding: 40px 60px;
+}
+h2 {
+  font-size: 3em;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.reset {
+  padding: 15px 20px;
+  color: #264ec5;
+  background: #fff;
+  border: none;
+  font-size: 1.5em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: 600;
+}
+.reset:focus {
+  color: #fff;
+  background: #0647c0;
+}
+.game4x4 {
+  width: 430px;
+  height: 430px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  transform-style: preserve-3d;
+  perspective: 500px;
+}
+.game6x6 {
+  width: 650px;
+  height: 650px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  transform-style: preserve-3d;
+  perspective: 500px;
+}
+.item {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3em;
+  background: #fff;
+  transform: rotateY(180deg);
+  transition: 0.25s;
+}
+.item.boxOpen {
+  transform: rotateY(0deg);
+}
+.item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  transition: 0.25s;
+  transform: rotateY(0deg);
+  backface-visibility: hidden;
+}
+.boxOpen:after,
+.boxMatch:after {
+  transform: rotateY(180deg);
+}
+
+.flip-horizontal {
+  transform: rotateY(180deg);
+}
+
+.flip-vertical {
+  transform: rotateX(180deg);
+}
+
+.flip-diagonal {
+  transform: rotateY(180deg) rotateX(180deg);
+}
